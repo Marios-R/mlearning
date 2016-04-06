@@ -6,4 +6,5 @@
     <string name="seek_to">Jump To</string>
     <string name="seek_to_hint">Seconds</string>
     <string name="title_activity_video_view">VideoViewActivity</string>
+    <string name="title_activity_askhseis">Askhseis</string>
 </resources>

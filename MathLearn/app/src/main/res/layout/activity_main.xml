@@ -21,4 +21,15 @@
         android:layout_marginTop="37dp"
         android:background="@drawable/rouned_corner_shadow"
         android:onClick="goToDialekseis" />
+
+    <Button
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:text="ΑΣΚΗΣΕΙΣ"
+        android:id="@+id/button2"
+        android:layout_marginTop="10dp"
+        android:layout_below="@+id/button1"
+        android:background="@drawable/rouned_corner_shadow"
+        android:layout_alignEnd="@+id/button1"
+        android:onClick="goToAskhseis" />
 </RelativeLayout>

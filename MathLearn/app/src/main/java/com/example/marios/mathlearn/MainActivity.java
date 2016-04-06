@@ -17,4 +17,10 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, Dialekseis.class);
         startActivity(intent);
     }
+
+    public void goToAskhseis(View view){
+        Intent intent = new Intent(this, Askhseis.class);
+        startActivity(intent);
+    }
+
 }

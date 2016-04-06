@@ -24,6 +24,10 @@
         <activity
             android:name=".VideoViewActivity"
             android:label="@string/title_activity_video_view"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Askhseis"
+            android:label="@string/title_activity_askhseis"
             android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
