@@ -28,7 +28,9 @@
         <activity
             android:name=".Askhseis"
             android:label="@string/title_activity_askhseis"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".Anakoinwseis" />
+        <activity android:name=".ProvolhAnakoinwshs"></activity>
     </application>
 
 </manifest>

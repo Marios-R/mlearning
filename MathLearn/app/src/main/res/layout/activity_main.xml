@@ -16,11 +16,11 @@
         android:layout_height="wrap_content"
         android:text="ΔΙΑΛΕΞΕΙΣ"
         android:id="@+id/button1"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="37dp"
+        android:layout_marginTop="86dp"
         android:background="@drawable/rouned_corner_shadow"
-        android:onClick="goToDialekseis" />
+        android:onClick="goToDialekseis"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
 
     <Button
         android:layout_width="200dp"
@@ -32,4 +32,15 @@
         android:background="@drawable/rouned_corner_shadow"
         android:layout_alignEnd="@+id/button1"
         android:onClick="goToAskhseis" />
+
+    <Button
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:text="ΑΝΑΚΟΙΝΩΣΕΙΣ"
+        android:id="@+id/button3"
+        android:layout_marginTop="10dp"
+        android:layout_below="@+id/button2"
+        android:background="@drawable/rouned_corner_shadow"
+        android:layout_alignEnd="@+id/button2"
+        android:onClick="goToAnakoinwseis" />
 </RelativeLayout>
