@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -20,7 +21,7 @@ public class Anakoinwseis extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_anakoinwseis);
 
-        titloi = new String[15];
+        titloi = new String[14];
         titloi[0]="27 Μαρ 2016";
         titloi[1]="1 Μαρ 2016";
         titloi[2]="27 Φεβ 2016";
@@ -35,7 +36,6 @@ public class Anakoinwseis extends AppCompatActivity {
         titloi[11]="28 Ιαν 2016";
         titloi[12]="17 Ιαν 2016";
         titloi[13]="17 Ιαν 2016";
-        titloi[14]="ΕΠΙΣΤΡΟΦΗ";
 
         anakoinwseis = new String[14];
         anakoinwseis[0]="Επαναληπτικό τεστ ανέβηκε στην ενότητα των ασκήσεων. Πατήστε στο δεύτερο φυλλάδιο. Να το λύσετε για να μπορέσω να δω που έχετε ελλείψεις. Πρέπει να κάνετε ότι καλύτερο μπορείτε.";
@@ -54,6 +54,16 @@ public class Anakoinwseis extends AppCompatActivity {
         anakoinwseis[13]="Καλώς ήλθατε στην υπέροχη σούπερ γουάου τάξη του κύριου Ράπτη! Παρακαλούμε να τον σέβεστε και να τον ακούτε με προσοχή! lol";
 
         listViewAn=(ListView) findViewById(R.id.anakoinwseis);
+        Button btnBack = new Button(this);
+        btnBack.setText("ΕΠΙΣΤΡΟΦΗ");
+        btnBack.setBackgroundResource(R.drawable.rouned_corner_shadow);
+        btnBack.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Intent intent = new Intent(Anakoinwseis.this, MainActivity.class);
+                startActivity(intent);
+            }
+        });
+        listViewAn.addFooterView(btnBack);
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, titloi );
         listViewAn.setAdapter(adapter);
@@ -61,15 +71,10 @@ public class Anakoinwseis extends AppCompatActivity {
         listViewAn.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (((TextView)view).getText().toString().equals("ΕΠΙΣΤΡΟΦΗ")){
-                    Intent intent = new Intent(Anakoinwseis.this, MainActivity.class);
-                    startActivity(intent);
-                }else {
                     Intent intent = new Intent(Anakoinwseis.this, ProvolhAnakoinwshs.class);
                     intent.putExtra("str2", anakoinwseis[position]);
                     startActivity(intent);
                 }
-            }
         });
     }
 }

@@ -1,11 +1,14 @@
 package com.example.marios.mathlearn;
 
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.Surface;
 import android.view.View;
 import android.widget.Toast;
 
@@ -24,10 +27,9 @@ public class VideoViewActivity extends YouTubeBaseActivity implements YouTubePla
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_video_view);
+        setContentView(R.layout.videoview);
         Bundle bundle = this.getIntent().getExtras();
-        videocode=bundle.getString("str1");
-        Toast.makeText(this, "May I suggest you to turn your phone horizontally for a better experience", Toast.LENGTH_LONG).show();
+        videocode=bundle.getString("url");
         youTubeView = (YouTubePlayerView) findViewById(R.id.youtube_view);
         youTubeView.initialize(Config.YOUTUBE_API_KEY, this);
     }

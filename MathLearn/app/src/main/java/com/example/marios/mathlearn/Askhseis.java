@@ -10,6 +10,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -34,6 +35,16 @@ public class Askhseis extends AppCompatActivity {
         askhseiscodes[1]="https://www.dropbox.com/s/opk0382doo2c8tg/epanaliptikotest1.pdf?dl=0";
 
         listViewAsk=(ListView) findViewById(R.id.askhseis);
+        Button btnBack = new Button(this);
+        btnBack.setText("ΕΠΙΣΤΡΟΦΗ");
+        btnBack.setBackgroundResource(R.drawable.rouned_corner_shadow);
+        btnBack.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Intent intent = new Intent(Askhseis.this, MainActivity.class);
+                startActivity(intent);
+            }
+        });
+        listViewAsk.addFooterView(btnBack);
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, askhseis );
         listViewAsk.setAdapter(adapter);
@@ -41,16 +52,12 @@ public class Askhseis extends AppCompatActivity {
         listViewAsk.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (((TextView) view).getText().toString().equals("ΕΠΙΣΤΡΟΦΗ")) {
-                    Intent intent = new Intent(Askhseis.this, MainActivity.class);
-                    startActivity(intent);
-                } else {
                     String url=askhseiscodes[position];
                     Uri uri = Uri.parse(url);
                     Intent intent = new Intent(Intent.ACTION_VIEW, uri);
                     startActivity(intent);
                 }
-            }
+
         });
     }
 

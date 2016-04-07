@@ -9,6 +9,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -25,7 +26,7 @@ public class Dialekseis extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dialekseis);
 
-        dialekseis = new String[11];
+        dialekseis = new String[10];
         dialekseis[0]="ΔΙΑΛΕΞΗ 1";
         dialekseis[1]="ΔΙΑΛΕΞΗ 2";
         dialekseis[2]="ΔΙΑΛΕΞΗ 3";
@@ -36,7 +37,6 @@ public class Dialekseis extends AppCompatActivity {
         dialekseis[7]="ΔΙΑΛΕΞΗ 8";
         dialekseis[8]="ΔΙΑΛΕΞΗ 9";
         dialekseis[9]="ΔΙΑΛΕΞΗ 10";
-        dialekseis[10]="ΕΠΙΣΤΡΟΦΗ";
 
         videocodes= new String[10];
         videocodes[0]="gAkXyU5dJjg";
@@ -51,6 +51,16 @@ public class Dialekseis extends AppCompatActivity {
         videocodes[9]="YXDZ73pZp3U";//https://youtu.be/YXDZ73pZp3U
 
         listView=(ListView) findViewById(R.id.listView);
+        Button btnBack = new Button(this);
+        btnBack.setText("ΕΠΙΣΤΡΟΦΗ");
+        btnBack.setBackgroundResource(R.drawable.rouned_corner_shadow);
+        btnBack.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Intent intent = new Intent(Dialekseis.this, MainActivity.class);
+                startActivity(intent);
+            }
+        });
+        listView.addFooterView(btnBack);
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, dialekseis );
         listView.setAdapter(adapter);
@@ -58,14 +68,9 @@ public class Dialekseis extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (((TextView)view).getText().toString().equals("ΕΠΙΣΤΡΟΦΗ")){
-                    Intent intent = new Intent(Dialekseis.this, MainActivity.class);
-                    startActivity(intent);
-                }else {
                     Intent intent = new Intent(Dialekseis.this, VideoViewActivity.class);
-                    intent.putExtra("str1", videocodes[position]);
+                    intent.putExtra("url", videocodes[position]);
                     startActivity(intent);
-                }
             }
         });
     }
