@@ -6,15 +6,14 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
 public class Anakoinwseis extends AppCompatActivity {
 
-    String[] titloi;
-    String[] anakoinwseis;
-    ListView listViewAn;
+    private String[] titloi;
+    private String[] anakoinwseis;
+    private ListView listViewAn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,16 +53,6 @@ public class Anakoinwseis extends AppCompatActivity {
         anakoinwseis[13]="Καλώς ήλθατε στην υπέροχη σούπερ γουάου τάξη του κύριου Ράπτη! Παρακαλούμε να τον σέβεστε και να τον ακούτε με προσοχή! lol";
 
         listViewAn=(ListView) findViewById(R.id.anakoinwseis);
-        Button btnBack = new Button(this);
-        btnBack.setText("ΕΠΙΣΤΡΟΦΗ");
-        btnBack.setBackgroundResource(R.drawable.rouned_corner_shadow);
-        btnBack.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Intent intent = new Intent(Anakoinwseis.this, MainActivity.class);
-                startActivity(intent);
-            }
-        });
-        listViewAn.addFooterView(btnBack);
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, titloi );
         listViewAn.setAdapter(adapter);
@@ -76,5 +65,10 @@ public class Anakoinwseis extends AppCompatActivity {
                     startActivity(intent);
                 }
         });
+    }
+
+    public void goBack(View view){
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
     }
 }

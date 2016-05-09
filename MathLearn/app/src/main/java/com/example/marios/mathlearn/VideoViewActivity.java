@@ -20,7 +20,7 @@ import com.google.android.youtube.player.YouTubePlayerView;
 //extends YouTubeBaseActivity implements YouTubePlayer.OnInitializedListener
 public class VideoViewActivity extends YouTubeBaseActivity implements YouTubePlayer.OnInitializedListener{
 
-    String videocode;
+    private String videocode;
     private static final int RECOVERY_REQUEST = 1;
     private YouTubePlayerView youTubeView;
 
@@ -29,7 +29,7 @@ public class VideoViewActivity extends YouTubeBaseActivity implements YouTubePla
         super.onCreate(savedInstanceState);
         setContentView(R.layout.videoview);
         Bundle bundle = this.getIntent().getExtras();
-        videocode=bundle.getString("url");
+        videocode=bundle.getString("video");
         youTubeView = (YouTubePlayerView) findViewById(R.id.youtube_view);
         youTubeView.initialize(Config.YOUTUBE_API_KEY, this);
     }
