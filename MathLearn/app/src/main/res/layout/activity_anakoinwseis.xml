@@ -6,31 +6,44 @@
     android:layout_height="match_parent"
     android:background="@drawable/math">
 
-    <ListView
+    <RelativeLayout
+        android:id="@+id/listcontainer"
+        android:layout_alignParentTop="true"
+        android:layout_below="@+id/askhseis"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        app:layout_heightPercent="85%"
+        app:layout_widthPercent="100%">
+    <ListView
+        android:fadeScrollbars="false"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_weight="1"
         android:id="@+id/anakoinwseis"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:background ="#88FFFFFF"
-        app:layout_heightPercent="85%"
-        app:layout_widthPercent="100%"/>
+        android:layout_marginTop="50dp"/>
+    </RelativeLayout>
 
-    <Button
+    <RelativeLayout
+        android:layout_below="@+id/listcontainer"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        app:layout_heightPercent="15%"
+        app:layout_widthPercent="100%">
+    <Button
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
         android:layout_weight="1"
         android:text="@string/epistrofh"
         android:background="@drawable/rouned_corner_shadow"
-        android:layout_below="@+id/anakoinwseis"
         android:onClick="goBack"
         android:id="@+id/button4"
         android:paddingRight="15dp"
         android:paddingLeft="15dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="5dp"
-        app:layout_heightPercent="15%"
-        app:layout_widthPercent="100%"/>
+        android:layout_centerInParent="true"
+        android:layout_marginBottom="5dp" />
+    </RelativeLayout>
 
 </android.support.percent.PercentRelativeLayout>

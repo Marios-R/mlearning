@@ -6,30 +6,47 @@ package com.example.marios.mathlearn;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 public class CustomAdapter extends BaseAdapter{
-    Video[] vids;
+
+    private Video[] vids;
+    private Assignment[] assignmts;
+
     Context context;
+    DataBaseHelper dbHelper;
     int image = R.drawable.small_success;
-    //int [] imageId;
     private static LayoutInflater inflater=null;
-    public CustomAdapter(Dialekseis dialekseis, Video[] v) {
+    public CustomAdapter(Context c) {
         // TODO Auto-generated constructor stub
-        vids=v;
-        context=dialekseis;
-        //imageId=prgmImages;
+        //vids=v;
+        context=c;
+        dbHelper = new DataBaseHelper(c);
         inflater = ( LayoutInflater )context.
                 getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
+
+    public void setVideos(Video[] v){
+        vids=v;
+    }
+
+    public void setAssignmts(Assignment[] a){
+        assignmts=a;
+    }
+
     @Override
     public int getCount() {
         // TODO Auto-generated method stub
-        return vids.length;
+        int len=0;
+        if (context instanceof Dialekseis) {
+            len= vids.length;
+        }
+        else if (context instanceof Askhseis) {
+            len= assignmts.length;
+        }
+        return len;
     }
 
     @Override
@@ -49,32 +66,31 @@ public class CustomAdapter extends BaseAdapter{
         TextView tv;
         ImageView img;
     }
+
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
-        // TODO Auto-generated method stub
+        // TODO Auto-generated constructor stub
         Holder holder=new Holder();
         View rowView;
         rowView = inflater.inflate(R.layout.listview, null);
         holder.tv=(TextView) rowView.findViewById(R.id.textView1);
-        //holder.img=(TextView) rowView.findViewById(R.id.textView1);
-        if (vids[position].videoSelected) {
-            holder.tv.setBackgroundColor(1426063360);
-            if (vids[position].videoViewed){
-                holder.img = (ImageView) rowView.findViewById(R.id.imageView1);
-                holder.img.setImageResource(image);
+        if (context instanceof Dialekseis) {
+            holder.tv.setText(vids[position].videoTitle);
+            if (vids[position].videoSelected) {
+                rowView.setBackgroundColor(1426063360);
+                if (vids[position].videoViewed){
+                    holder.img = (ImageView) rowView.findViewById(R.id.imageView1);
+                    holder.img.setImageResource(image);
+                }
+            }
+        }
+        else if (context instanceof Askhseis){
+            holder.tv.setText(assignmts[position].assignTitle);
+            if (assignmts[position].assignSelected){
+                rowView.setBackgroundColor(1426063360);
             }
         }
 
-        //holder.img=(ImageView) rowView.findViewById(R.id.imageView1);
-        holder.tv.setText(vids[position].videoTitle);
-        //holder.img.setImageResource(imageId[position]);
-        /*rowView.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // TODO Auto-generated method stub
-                //Toast.makeText(context, "You Clicked "+result[position], Toast.LENGTH_LONG).show();
-            }
-        });*/
         return rowView;
     }
 
