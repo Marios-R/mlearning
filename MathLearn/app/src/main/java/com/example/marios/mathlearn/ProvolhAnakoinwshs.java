@@ -15,6 +15,7 @@ public class ProvolhAnakoinwshs extends AppCompatActivity {
         setContentView(R.layout.activity_provolh_anakoinwshs);
         TextView tv1 = (TextView) findViewById(R.id.anakoinwsh);
         Bundle bundle = this.getIntent().getExtras();
+        setTitle(bundle.getString("title"));
         tv1.setMovementMethod(new ScrollingMovementMethod());
         tv1.setText(bundle.getString("str2"));
     }

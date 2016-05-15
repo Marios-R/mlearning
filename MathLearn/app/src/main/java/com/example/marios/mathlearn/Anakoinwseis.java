@@ -7,11 +7,13 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -19,84 +21,96 @@ import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class Anakoinwseis extends AppCompatActivity {
+public class Anakoinwseis extends MainBase {
 
     private static final String URL = String.format("http://mlearning-projectmr.rhcloud.com/announcements.php");
-    //private String[] titloi;
-    //private String[] anakoinwseis;
-    private ListView listViewAn;
-    //SQLiteDatabase db;
     Announcement[] announcements;
-    DataBaseHelper dbHelper;
+    String ids;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_anakoinwseis);
 
-        listViewAn=(ListView) findViewById(R.id.anakoinwseis);
-        dbHelper = new DataBaseHelper(this);
-        new GetAnnouncementsTask(listViewAn).execute(URL);
+        announcements = dbHelper.getAnnouncements();
+        adapter = new CustomAdapter(Anakoinwseis.this);
+        adapter.setAnnouncements(announcements);
+        listView.setAdapter(adapter);
 
-        /*titloi = new String[14];
-        titloi[0]="27 Μαρ 2016";
-        titloi[1]="1 Μαρ 2016";
-        titloi[2]="27 Φεβ 2016";
-        titloi[3]="23 Φεβ 2016";
-        titloi[4]="22 Φεβ 2016";
-        titloi[5]="17 Φεβ 2016";
-        titloi[6]="16 Φεβ 2016";
-        titloi[7]="5 Φεβ 2016";
-        titloi[8]="4 Φεβ 2016";
-        titloi[9]="4 Φεβ 2016";
-        titloi[10]="2 Φεβ 2016";
-        titloi[11]="28 Ιαν 2016";
-        titloi[12]="17 Ιαν 2016";
-        titloi[13]="17 Ιαν 2016";
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if(!announcements[position].annSelected){
+                    dbHelper.updateSelectedinAnnouncements(announcements[position].annID);
+                }
+                Intent intent = new Intent(Anakoinwseis.this, ProvolhAnakoinwshs.class);
+                intent.putExtra("str2", announcements[position].annBody);
+                intent.putExtra("title", announcements[position].annDate);
+                startActivity(intent);
+            }
+        });
 
-        anakoinwseis = new String[14];
-        anakoinwseis[0]="Επαναληπτικό τεστ ανέβηκε στην ενότητα των ασκήσεων. Πατήστε στο δεύτερο φυλλάδιο. Να το λύσετε για να μπορέσω να δω που έχετε ελλείψεις. Πρέπει να κάνετε ότι καλύτερο μπορείτε.";
-        anakoinwseis[1]="Ελα να διαβάζουμε!";
-        anakoinwseis[2]="Με το 10ο μάθημα στην ουσία τελειώνουμε και την παράγραφο 1.7 του βιβλίου";
-        anakoinwseis[3]="Τελος και η παράγραφος 1.6 με το 9ο μάθημα!";
-        anakoinwseis[4]="Το 8ο μάθημα περιλαμβάνει και το πρώτο κομμάτι από την παράγραφο 1.6.";
-        anakoinwseis[5]="Με το μάθημα 7 τελειώνει η θεωρία του 1.5. Βγήκε λίγο θολό σε μερικά σημεία αλλά προσπαθήστε να το δείτε...";
-        anakoinwseis[6]="Βγήκε λίγο μεγάλο το 6ο μάθημα. Να το δείτε όμως! Αύριο θα ανέβει και το υπόλοιπο για να τελειώσουμε το 1.5. Αυτό θα είναι 17 λεπτά μη τρελαίνεστε!!";
-        anakoinwseis[7]="Με το 5ο μάθημα τελειώνουμε την παράγραφο 1.4!";
-        anakoinwseis[8]="Με το 4ο μάθημα τελειώνουμε την παράγραφο 1.3!";
-        anakoinwseis[9]="Με το 3ο μάθημα τελειώνει και η θεωρία του 1.2!";
-        anakoinwseis[10]="Ανέβηκε το 2ο μάθημα! Βασισμένο πάνω στη παράγραφο 1.2 είναι και περιλαμβάνει τον ορισμό πραγματικής συνάρτησης, πεδίο ορισμού και γραφικές παραστάσεις. Έχει παραδείγματα για το πως βρίσκεις το πεδίο ορισμού με βάση τον τύπο μιας συνάρτησης (αν δεν σου δίνουν το πεδίο ορισμού της) και μερικά βασικά παραδείγματα γραφικών παραστάσεων για να καταλάβετε την λογική με την οποία σχεδιάζονται. Στο τέλος έχει μερικές υπενθυμίσεις σε ιδιότητες των λογαρίθμων. Το επόμενο βίντεο θα ξεκινήσει με τη γραφική παράσταση της lnx και θα ολοκληρώνει τη θεωρία από το 1.2.";
-        anakoinwseis[11]="Ανέβηκε το 1ο μάθημα! Δείτε το και προσπαθήστε να κάνετε την άσκηση 3 και την άσκηση 2 από το βιβλίο και τις ασκήσεις σε διαστήματα από το pdf το δικό μου που έχω ανεβάσει στην ενότητα των ασκήσεων (πρώτο φυλλάδιο). Άντε να διαβάζουμε!";
-        anakoinwseis[12]="Ανέβηκε η πρώτη φυλλάδα ασκήσεων! Πηγαίντε στην ενότητα των ασκήσεων και πατήστε στο πρώτο φυλλάδιο.";
-        anakoinwseis[13]="Καλώς ήλθατε στην υπέροχη σούπερ γουάου τάξη του κύριου Ράπτη! Παρακαλούμε να τον σέβεστε και να τον ακούτε με προσοχή! lol";*/
+        StringBuilder sb= new StringBuilder();
+        for (int i=0; i < announcements.length; i++){
+            sb.append( "'"+announcements[i].annID+"'," );
+        }
+        ids=sb.toString();
+        ids = ids.substring(0, ids.length() - 1);
+        Toast.makeText(Anakoinwseis.this, ids, Toast.LENGTH_LONG).show();
 
     }
 
-    private class GetAnnouncementsTask extends AsyncTask<String, Void, String> {
-        private ListView listView;
-        private ProgressDialog dialog = new ProgressDialog(Anakoinwseis.this);
-
-        public GetAnnouncementsTask(ListView listView) {
-            this.listView = listView;
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menuRefresh:
+                new GetAnnouncementsTask().execute(URL,ids);
+                return true;
         }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private class GetAnnouncementsTask extends AsyncTask<String, Void, String> {
+
+        /*private ListView listView;
+        private String ids;
+
+        public GetAnnouncementsTask(ListView listView, String c) {
+            this.listView = listView;
+            this.ids=c;
+        }*/
 
         @Override
         protected void onPreExecute() {
-            this.dialog.setMessage("ΦΟΡΤΩΣΗ ΑΝΑΚΟΙΝΩΣΕΩΝ");
-            this.dialog.show();
+            setRefreshActionButtonState(true);
         }
 
         @Override
         protected String doInBackground(String... strings) {
-            String announcements = "UNDEFINED";
+            return connectToRemote(strings[0],strings[1]);
+            //Toast.makeText(Anakoinwseis.this, this.ids, Toast.LENGTH_LONG).show();
+            /*String announcements = "UNDEFINED";
             try {
-                java.net.URL url = new URL(strings[0]);
+                URL url = new URL(strings[0]);
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("POST");
+                urlConnection.setDoInput(true);
+                urlConnection.setDoOutput(true);
+                Uri.Builder build = new Uri.Builder().appendQueryParameter("ids", this.ids);
+                String query = build.build().getEncodedQuery();
+                OutputStream os = urlConnection.getOutputStream();
+                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
+                writer.write(query);
+                writer.flush();
+                writer.close();
+                os.close();
                 urlConnection.connect();
                 InputStream stream = new BufferedInputStream(urlConnection.getInputStream());
                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(stream));
@@ -112,62 +126,55 @@ public class Anakoinwseis extends AppCompatActivity {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            return announcements;
+            return announcements;*/
         }
 
         @Override
         protected void onPostExecute(String temp) {
+            //Toast.makeText(Anakoinwseis.this, temp, Toast.LENGTH_LONG).show();
             try {
                 JSONObject topLevel = new JSONObject(temp);
                 JSONArray annjson = (JSONArray) topLevel.get("announcements");
-                StringBuilder sb= new StringBuilder();
-                String ids;
-                for (int i = 0; i < annjson.length(); i++) {
-                    try {
-                        JSONObject oneObject = annjson.getJSONObject(i);
-                        // Pulling items from the array
-                        int id = oneObject.getInt("ID");
-                        sb.append( "'"+id+"'," );
-                        if (!dbHelper.existInAnnouncements(id)) {
+                String nonexistentannouncements = (String) topLevel.get("nonexistentannouncements");
+                if (annjson.length()!=0) {
+                    for (int i = 0; i < annjson.length(); i++) {
+                        try {
+                            JSONObject oneObject = annjson.getJSONObject(i);
+                            // Pulling items from the array
+                            int id = oneObject.getInt("ID");
                             String date = oneObject.getString("Date");
                             String body = oneObject.getString("Body");
                             int sequence = oneObject.getInt("Sequence");
                             dbHelper.insertInAnnouncements(new Announcement(date, body, false, id, sequence));
+                        } catch (JSONException e) {
+                            // Oops
                         }
-                    } catch (JSONException e) {
-                        // Oops
                     }
                 }
-                ids = sb.toString();
-                ids = ids.substring(0, ids.length()-1);
-                dbHelper.deleteFromAnnouncementsNotIn(ids);
+                if (!nonexistentannouncements.equals("")){
+                    dbHelper.deleteFromAnnouncements(nonexistentannouncements);
+                }
+                if (annjson.length()==0 && nonexistentannouncements.equals("") ){
+                    Toast.makeText(Anakoinwseis.this, "Τίποτα νεότερο.", Toast.LENGTH_LONG).show();
+                }else{
+                    announcements = dbHelper.getAnnouncements();
+                    StringBuilder sb= new StringBuilder();
+                    for (int i=0; i < announcements.length; i++){
+                        sb.append( "'"+announcements[i].annID+"'," );
+                    }
+                    ids=sb.toString();
+                    ids = ids.substring(0, ids.length() - 1);
+                    //adapter = new CustomAdapter(Anakoinwseis.this);
+                    adapter.setAnnouncements(announcements);
+                    listView.setAdapter(adapter);
+                    Toast.makeText(Anakoinwseis.this, "Οι ανακοινώσεις ανανεώθηκαν!", Toast.LENGTH_LONG).show();
+                }
             } catch (JSONException e) {
                 //No connectivity?
             }
-
-            announcements = dbHelper.getAnnouncements();
-            if (dialog.isShowing()) {
-                dialog.dismiss();
-            }
-            CustomAdapter adapter = new CustomAdapter(Anakoinwseis.this);
-            adapter.setAnnouncements(announcements);
-            listView.setAdapter(adapter);
-
-            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    dbHelper.updateSelectedinAnnouncements(announcements[position].annID);
-                    Intent intent = new Intent(Anakoinwseis.this, ProvolhAnakoinwshs.class);
-                    intent.putExtra("str2", announcements[position].annBody);
-                    startActivity(intent);
-                }
-            });
+            setRefreshActionButtonState(false);
 
         }
     }
 
-    public void goBack(View view){
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
-    }
 }

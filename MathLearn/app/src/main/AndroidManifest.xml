@@ -10,7 +10,9 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -20,23 +22,35 @@
         <activity
             android:name=".Dialekseis"
             android:label="@string/title_activity_dialekseis"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".Askhseis"
+            android:label="@string/title_activity_askhseis"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".Anakoinwseis"
+            android:label="@string/title_activity_anakoinwseis"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme" />
         <activity
             android:name=".VideoViewActivity"
             android:label="@string/title_activity_video_view"
             android:screenOrientation="landscape"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".Askhseis"
-            android:label="@string/title_activity_askhseis"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".Anakoinwseis" />
-        <activity android:name=".ProvolhAnakoinwshs" />
+            android:name=".ProvolhAnakoinwshs"
+            android:label="@string/title_activity_provolh_dialekshs"
+            android:parentActivityName=".Anakoinwseis"
+            android:theme="@style/AppTheme" />
         <activity
             android:name=".ProvolhDialekshs"
             android:label="@string/title_activity_provolh_dialekshs"
+            android:parentActivityName=".Dialekseis"
             android:screenOrientation="landscape"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme" />
+        <activity android:name=".MainBase"></activity>
     </application>
 
 </manifest>

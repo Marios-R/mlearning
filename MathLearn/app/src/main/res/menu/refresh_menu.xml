@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:MathLearn="http://schemas.android.com/apk/res-auto">
+    <!--<item android:id="@+id/menuBack"
+        android:icon="@drawable/small_backicon"
+        android:title="ΕΠΙΣΤΡΟΦΗ"
+        MathLearn:showAsAction="always"/>
+    <item android:id="@+id/menuTitle"
+        android:label="@string/title_activity_dialekseis"
+        android:title="ΔΙΑΛΕΞΕΙΣ"
+        MathLearn:showAsAction="always"/>-->
+    <item android:id="@+id/menuRefresh"
+        android:icon="@drawable/small_refresh"
+        android:title="ΑΝΑΝΕΩΣΗ"
+        MathLearn:showAsAction="always"/>
+</menu>

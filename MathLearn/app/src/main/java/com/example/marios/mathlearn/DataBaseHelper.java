@@ -65,6 +65,27 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         return videos;
     }
 
+    public Video getVideo(int id){
+        Video video;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cu=db.rawQuery("SELECT * FROM videos WHERE vID=" + id + "", null);
+        cu.moveToFirst();
+        String videoTitle = cu.getString(0);
+        String videoCode = cu.getString(1);
+        boolean videoSelected = false;
+        boolean videoViewed = false;
+        int videoSequence = cu.getInt(4);
+        int videoID=cu.getInt(5);
+        if (cu.getString(2).equals("true")){
+            videoSelected=true;
+            if (cu.getString(3).equals("true")){
+                videoViewed=true;
+            }
+        }
+        video= new Video(videoTitle,videoCode,videoSelected,videoViewed, videoSequence, videoID);
+        return video;
+    }
+
     public boolean existInVideos(int id){
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cu=db.rawQuery("SELECT * FROM videos WHERE vID=" + id + "", null);
@@ -139,6 +160,23 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         return assignments;
     }
 
+    public Assignment getAssignment(int id){
+        Assignment assignment;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cu=db.rawQuery("SELECT * FROM assignments WHERE assignID=" + id + "", null);
+        cu.moveToFirst();
+        String assignTitle = cu.getString(0);
+        String assignLink = cu.getString(1);
+        boolean assignSelected = false;
+        int assignID = cu.getInt(3);
+        int assignSequence = cu.getInt(4);
+        if (cu.getString(2).equals("true")){
+            assignSelected=true;
+        }
+        assignment = new Assignment(assignTitle,assignLink,assignSelected,assignID, assignSequence);
+        return assignment;
+    }
+
     public void updateSelectedinAssignments(int id){
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
@@ -149,6 +187,11 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     public void deleteFromAssignmentsNotIn(String array){
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL("DELETE FROM assignments WHERE assignID NOT IN (" + array + ");");
+    }
+
+    public void deleteFromAssignments(String array){
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("DELETE FROM assignments WHERE assignID IN (" + array + ");");
     }
 
     public boolean existInAnnouncements(int id){
@@ -192,6 +235,23 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         return announcements;
     }
 
+    public Announcement getAnnouncement(int id){
+        Announcement announcement;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cu=db.rawQuery("SELECT * FROM announcements WHERE annID=" + id + "", null);
+        cu.moveToFirst();
+        String annDate = cu.getString(0);
+        String annBody = cu.getString(1);
+        boolean annSelected = false;
+        int annID = cu.getInt(3);
+        int annSequence = cu.getInt(4);
+        if (cu.getString(2).equals("true")){
+            annSelected=true;
+        }
+        announcement = new Announcement(annDate,annBody,annSelected,annID, annSequence);
+        return announcement;
+    }
+
     public void updateSelectedinAnnouncements(int id){
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
@@ -202,6 +262,11 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     public void deleteFromAnnouncementsNotIn(String array){
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL("DELETE FROM announcements WHERE annID NOT IN (" + array + ");");
+    }
+
+    public void deleteFromAnnouncements(String array){
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("DELETE FROM announcements WHERE annID IN (" + array + ");");
     }
 
 
