@@ -31,6 +31,7 @@ public class VideoViewActivity extends YouTubeBaseActivity implements YouTubePla
         super.onCreate(savedInstanceState);
         setContentView(R.layout.videoview);
         Bundle bundle = this.getIntent().getExtras();
+        getLayoutInflater().setFactory(this);
         dbHelper=new DataBaseHelper(this);
         videocode=bundle.getString("video");
         youTubeView = (YouTubePlayerView) findViewById(R.id.youtube_view);
@@ -89,7 +90,7 @@ public class VideoViewActivity extends YouTubeBaseActivity implements YouTubePla
         @Override
         public void onVideoEnded() {
             // Called when the video reaches its end.
-            dbHelper.updateViewedinVids(videocode);
+            //dbHelper.updateViewedinVids(videocode);
         }
 
         @Override

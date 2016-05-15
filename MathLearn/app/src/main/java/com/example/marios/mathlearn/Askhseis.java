@@ -1,5 +1,6 @@
 package com.example.marios.mathlearn;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
@@ -37,7 +38,7 @@ public class Askhseis extends AppCompatActivity {
     //private String[] askhseis;
     //private String[] askhseiscodes;
     private ListView listViewAsk;
-    SQLiteDatabase db;
+    //SQLiteDatabase db;
     Assignment[] assignments;
     DataBaseHelper dbHelper;
 
@@ -78,9 +79,16 @@ public class Askhseis extends AppCompatActivity {
 
     private class GetAssignmentsTask extends AsyncTask<String, Void, String> {
         private ListView listView;
+        private ProgressDialog dialog = new ProgressDialog(Askhseis.this);
 
         public GetAssignmentsTask(ListView listView) {
             this.listView = listView;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            this.dialog.setMessage("ΦΟΡΤΩΣΗ ΑΣΚΗΣΕΩΝ");
+            this.dialog.show();
         }
 
         @Override
@@ -112,12 +120,15 @@ public class Askhseis extends AppCompatActivity {
             try{
                 JSONObject topLevel = new JSONObject(temp);
                 JSONArray  assignjson = (JSONArray) topLevel.get("assignments");
+                StringBuilder sb= new StringBuilder();
+                String ids;
                 for (int i=0; i < assignjson.length(); i++)
                 {
                     try {
                         JSONObject oneObject = assignjson.getJSONObject(i);
                         // Pulling items from the array
                         int id = oneObject.getInt("ID");
+                        sb.append( "'"+id+"'," );
                         if (!dbHelper.existInAssignments(id)){
                             String title = oneObject.getString("Title");
                             String link = oneObject.getString("Link");
@@ -128,11 +139,17 @@ public class Askhseis extends AppCompatActivity {
                         // Oops
                     }
                 }
+                ids = sb.toString();
+                ids = ids.substring(0, ids.length()-1);
+                dbHelper.deleteFromAssignmentsNotIn(ids);
             }catch(JSONException e){
                 //No connectivity?
             }
 
             assignments = dbHelper.getAssignments();
+            if (dialog.isShowing()) {
+                dialog.dismiss();
+            }
             CustomAdapter adapter = new CustomAdapter(Askhseis.this);
             adapter.setAssignmts(assignments);
             listView.setAdapter(adapter);
@@ -145,9 +162,6 @@ public class Askhseis extends AppCompatActivity {
                     Uri uri = Uri.parse(url);
                     Intent intent = new Intent(Intent.ACTION_VIEW, uri);
                     startActivity(intent);
-                    //Intent intent = new Intent(Askhseis.this, VideoViewActivity.class);
-                    //intent.putExtra("str2", assignments[position].assign);
-                    //startActivity(intent);
                 }
             });
 

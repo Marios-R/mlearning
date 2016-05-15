@@ -9,7 +9,6 @@
     <RelativeLayout
         android:id="@+id/listcontainer"
         android:layout_alignParentTop="true"
-        android:layout_below="@+id/askhseis"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_heightPercent="85%"

@@ -31,7 +31,12 @@
             android:label="@string/title_activity_askhseis"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".Anakoinwseis" />
-        <activity android:name=".ProvolhAnakoinwshs"></activity>
+        <activity android:name=".ProvolhAnakoinwshs" />
+        <activity
+            android:name=".ProvolhDialekshs"
+            android:label="@string/title_activity_provolh_dialekshs"
+            android:screenOrientation="landscape"
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>

@@ -5,16 +5,18 @@ package com.example.marios.mathlearn;
  */
 public class Video {
     public String videoTitle = "";
-    public String videoCode = "";
+    public String videoLink = "";
     public boolean videoSelected = false;
     public boolean videoViewed = false;
     public int videoSequence;
+    public int videoID;
 
-    public Video(String vTitle, String vCode, boolean vSelected, boolean vViewed, int vSequence){
+    public Video(String vTitle, String vCode, boolean vSelected, boolean vViewed, int vSequence, int vID){
         videoTitle=vTitle;
-        videoCode=vCode;
+        videoLink=vCode;
         videoSelected=vSelected;
         videoViewed=vViewed;
         videoSequence=vSequence;
+        videoID=vID;
     }
 }

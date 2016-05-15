@@ -14,6 +14,7 @@ public class CustomAdapter extends BaseAdapter{
 
     private Video[] vids;
     private Assignment[] assignmts;
+    private Announcement[] announcmnts;
 
     Context context;
     DataBaseHelper dbHelper;
@@ -35,6 +36,9 @@ public class CustomAdapter extends BaseAdapter{
     public void setAssignmts(Assignment[] a){
         assignmts=a;
     }
+    public void setAnnouncements(Announcement[] a){
+        announcmnts=a;
+    }
 
     @Override
     public int getCount() {
@@ -45,6 +49,9 @@ public class CustomAdapter extends BaseAdapter{
         }
         else if (context instanceof Askhseis) {
             len= assignmts.length;
+        }
+        else if (context instanceof Anakoinwseis){
+            len= announcmnts.length;
         }
         return len;
     }
@@ -87,6 +94,12 @@ public class CustomAdapter extends BaseAdapter{
         else if (context instanceof Askhseis){
             holder.tv.setText(assignmts[position].assignTitle);
             if (assignmts[position].assignSelected){
+                rowView.setBackgroundColor(1426063360);
+            }
+        }
+        else if (context instanceof Anakoinwseis){
+            holder.tv.setText(announcmnts[position].annDate);
+            if (announcmnts[position].annSelected){
                 rowView.setBackgroundColor(1426063360);
             }
         }

@@ -1,6 +1,10 @@
 package com.example.marios.mathlearn;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -9,18 +13,37 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
 public class Anakoinwseis extends AppCompatActivity {
 
-    private String[] titloi;
-    private String[] anakoinwseis;
+    private static final String URL = String.format("http://mlearning-projectmr.rhcloud.com/announcements.php");
+    //private String[] titloi;
+    //private String[] anakoinwseis;
     private ListView listViewAn;
+    //SQLiteDatabase db;
+    Announcement[] announcements;
+    DataBaseHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_anakoinwseis);
 
-        titloi = new String[14];
+        listViewAn=(ListView) findViewById(R.id.anakoinwseis);
+        dbHelper = new DataBaseHelper(this);
+        new GetAnnouncementsTask(listViewAn).execute(URL);
+
+        /*titloi = new String[14];
         titloi[0]="27 Μαρ 2016";
         titloi[1]="1 Μαρ 2016";
         titloi[2]="27 Φεβ 2016";
@@ -50,21 +73,97 @@ public class Anakoinwseis extends AppCompatActivity {
         anakoinwseis[10]="Ανέβηκε το 2ο μάθημα! Βασισμένο πάνω στη παράγραφο 1.2 είναι και περιλαμβάνει τον ορισμό πραγματικής συνάρτησης, πεδίο ορισμού και γραφικές παραστάσεις. Έχει παραδείγματα για το πως βρίσκεις το πεδίο ορισμού με βάση τον τύπο μιας συνάρτησης (αν δεν σου δίνουν το πεδίο ορισμού της) και μερικά βασικά παραδείγματα γραφικών παραστάσεων για να καταλάβετε την λογική με την οποία σχεδιάζονται. Στο τέλος έχει μερικές υπενθυμίσεις σε ιδιότητες των λογαρίθμων. Το επόμενο βίντεο θα ξεκινήσει με τη γραφική παράσταση της lnx και θα ολοκληρώνει τη θεωρία από το 1.2.";
         anakoinwseis[11]="Ανέβηκε το 1ο μάθημα! Δείτε το και προσπαθήστε να κάνετε την άσκηση 3 και την άσκηση 2 από το βιβλίο και τις ασκήσεις σε διαστήματα από το pdf το δικό μου που έχω ανεβάσει στην ενότητα των ασκήσεων (πρώτο φυλλάδιο). Άντε να διαβάζουμε!";
         anakoinwseis[12]="Ανέβηκε η πρώτη φυλλάδα ασκήσεων! Πηγαίντε στην ενότητα των ασκήσεων και πατήστε στο πρώτο φυλλάδιο.";
-        anakoinwseis[13]="Καλώς ήλθατε στην υπέροχη σούπερ γουάου τάξη του κύριου Ράπτη! Παρακαλούμε να τον σέβεστε και να τον ακούτε με προσοχή! lol";
+        anakoinwseis[13]="Καλώς ήλθατε στην υπέροχη σούπερ γουάου τάξη του κύριου Ράπτη! Παρακαλούμε να τον σέβεστε και να τον ακούτε με προσοχή! lol";*/
 
-        listViewAn=(ListView) findViewById(R.id.anakoinwseis);
+    }
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, titloi );
-        listViewAn.setAdapter(adapter);
+    private class GetAnnouncementsTask extends AsyncTask<String, Void, String> {
+        private ListView listView;
+        private ProgressDialog dialog = new ProgressDialog(Anakoinwseis.this);
 
-        listViewAn.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        public GetAnnouncementsTask(ListView listView) {
+            this.listView = listView;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            this.dialog.setMessage("ΦΟΡΤΩΣΗ ΑΝΑΚΟΙΝΩΣΕΩΝ");
+            this.dialog.show();
+        }
+
+        @Override
+        protected String doInBackground(String... strings) {
+            String announcements = "UNDEFINED";
+            try {
+                java.net.URL url = new URL(strings[0]);
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.connect();
+                InputStream stream = new BufferedInputStream(urlConnection.getInputStream());
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(stream));
+                StringBuilder builder = new StringBuilder();
+
+                String inputString;
+                while ((inputString = bufferedReader.readLine()) != null) {
+                    builder.append(inputString);
+                }
+                announcements = builder.toString();
+
+                urlConnection.disconnect();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return announcements;
+        }
+
+        @Override
+        protected void onPostExecute(String temp) {
+            try {
+                JSONObject topLevel = new JSONObject(temp);
+                JSONArray annjson = (JSONArray) topLevel.get("announcements");
+                StringBuilder sb= new StringBuilder();
+                String ids;
+                for (int i = 0; i < annjson.length(); i++) {
+                    try {
+                        JSONObject oneObject = annjson.getJSONObject(i);
+                        // Pulling items from the array
+                        int id = oneObject.getInt("ID");
+                        sb.append( "'"+id+"'," );
+                        if (!dbHelper.existInAnnouncements(id)) {
+                            String date = oneObject.getString("Date");
+                            String body = oneObject.getString("Body");
+                            int sequence = oneObject.getInt("Sequence");
+                            dbHelper.insertInAnnouncements(new Announcement(date, body, false, id, sequence));
+                        }
+                    } catch (JSONException e) {
+                        // Oops
+                    }
+                }
+                ids = sb.toString();
+                ids = ids.substring(0, ids.length()-1);
+                dbHelper.deleteFromAnnouncementsNotIn(ids);
+            } catch (JSONException e) {
+                //No connectivity?
+            }
+
+            announcements = dbHelper.getAnnouncements();
+            if (dialog.isShowing()) {
+                dialog.dismiss();
+            }
+            CustomAdapter adapter = new CustomAdapter(Anakoinwseis.this);
+            adapter.setAnnouncements(announcements);
+            listView.setAdapter(adapter);
+
+            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    dbHelper.updateSelectedinAnnouncements(announcements[position].annID);
                     Intent intent = new Intent(Anakoinwseis.this, ProvolhAnakoinwshs.class);
-                    intent.putExtra("str2", anakoinwseis[position]);
+                    intent.putExtra("str2", announcements[position].annBody);
                     startActivity(intent);
                 }
-        });
+            });
+
+        }
     }
 
     public void goBack(View view){

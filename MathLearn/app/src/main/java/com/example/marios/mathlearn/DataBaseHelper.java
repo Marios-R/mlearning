@@ -12,8 +12,9 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DataBaseHelper extends SQLiteOpenHelper {
 
     public static final String DATABASE_NAME="Local_DB";
-    private static final String CREATE_VIDEOS="CREATE TABLE IF NOT EXISTS videos(vTitle VARCHAR, vCode VARCHAR, vSelected VARCHAR, vViewed VARCHAR, vSequence INT);";
+    private static final String CREATE_VIDEOS="CREATE TABLE IF NOT EXISTS videos(vTitle VARCHAR, vCode VARCHAR, vSelected VARCHAR, vViewed VARCHAR, vSequence INT, vID INT);";
     private static final String CREATE_ASSIGNMENTS="CREATE TABLE IF NOT EXISTS assignments(assignTitle VARCHAR, assignLink VARCHAR, assignSelected VARCHAR, assignID INT, assignSequence INT);";
+    private static final String CREATE_ANNOUNCEMENTS="CREATE TABLE IF NOT EXISTS announcements(annDate VARCHAR, annBody VARCHAR, annSelected VARCHAR, annID INT, annSequence INT);";
     //public static final String TABLE_NAME="videos";
     //private SQLiteDatabase db;
 
@@ -25,6 +26,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(CREATE_VIDEOS);
         db.execSQL(CREATE_ASSIGNMENTS);
+        db.execSQL(CREATE_ANNOUNCEMENTS);
     }
 
     @Override
@@ -38,7 +40,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         Cursor c=db.rawQuery("SELECT * FROM videos ORDER BY vSequence DESC", null);
         if (c.getCount()==0){
             videos = new Video[1];
-            videos[0]= new Video("ΔΕΝ ΥΠΑΡΧΕΙ ΔΙΑΛΕΞΗ", "", false, false,1);
+            videos[0]= new Video("ΔΕΝ ΥΠΑΡΧΕΙ ΔΙΑΛΕΞΗ", "", false, false,1,0);
         }
         else {
             videos= new Video[c.getCount()];
@@ -49,22 +51,23 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                 boolean videoSelected = false;
                 boolean videoViewed = false;
                 int videoSequence = c.getInt(4);
+                int videoID=c.getInt(5);
                 if (c.getString(2).equals("true")){
                     videoSelected=true;
                     if (c.getString(3).equals("true")){
                         videoViewed=true;
                     }
                 }
-                videos[i]= new Video(videoTitle,videoCode,videoSelected,videoViewed, videoSequence);
+                videos[i]= new Video(videoTitle,videoCode,videoSelected,videoViewed, videoSequence, videoID);
                 i++;
             }
         }
         return videos;
     }
 
-    public boolean existInVideos(String code){
+    public boolean existInVideos(int id){
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cu=db.rawQuery("SELECT * FROM videos WHERE vCode='" + code + "'", null);
+        Cursor cu=db.rawQuery("SELECT * FROM videos WHERE vID=" + id + "", null);
         if (cu.getCount()==0)
             return false;
         else
@@ -73,21 +76,26 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
     public void insertInVids(Video video){
         SQLiteDatabase db = this.getWritableDatabase();
-        db.execSQL("INSERT INTO videos VALUES('"+video.videoTitle+"','"+video.videoCode+"','false','false','"+video.videoSequence+"');");
+        db.execSQL("INSERT INTO videos VALUES('"+video.videoTitle+"','"+video.videoLink+"','false','false',"+video.videoSequence+","+video.videoID+");");
     }
 
-    public void updateSelectedinVids(String code){
+    public void updateSelectedinVids(int id){
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
         cv.put("vSelected", "true");
-        db.update("videos", cv, "vCode='" + code + "'", null);
+        db.update("videos", cv, "vID=" + id + "", null);
     }
 
-    public void updateViewedinVids(String code){
+    public void updateViewedinVids(int id){
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
         cv.put("vViewed", "true");
-        db.update("videos", cv, "vCode='" + code+"'", null);
+        db.update("videos", cv, "vID='" + id+"'", null);
+    }
+
+    public void deleteFromVidsIn(String array){
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("DELETE FROM videos WHERE vID IN (" + array + ");");
     }
 
     public boolean existInAssignments(int id){
@@ -137,5 +145,64 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         cv.put("assignSelected", "true");
         db.update("assignments", cv, "assignID='" + id + "'", null);
     }
+
+    public void deleteFromAssignmentsNotIn(String array){
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("DELETE FROM assignments WHERE assignID NOT IN (" + array + ");");
+    }
+
+    public boolean existInAnnouncements(int id){
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cu=db.rawQuery("SELECT * FROM announcements WHERE annID=" + id + "", null);
+        if (cu.getCount()==0)
+            return false;
+        else
+            return true;
+    }
+
+    public void insertInAnnouncements(Announcement announcement){
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("INSERT INTO announcements VALUES('"+announcement.annDate+"','"+announcement.annBody+"','false',"+announcement.annID+","+announcement.annSequence+");");
+    }
+
+    public Announcement[] getAnnouncements(){
+        Announcement[] announcements;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c=db.rawQuery("SELECT * FROM announcements ORDER BY annSequence DESC", null);
+        if (c.getCount()==0){
+            announcements = new Announcement[1];
+            announcements[0]= new Announcement("ΔΕΝ ΥΠΑΡΧΕΙ ΑΝΑΚΟΙΝΩΣΗ", "", false,0,1);
+        }
+        else {
+            announcements= new Announcement[c.getCount()];
+            int i = 0;
+            while (c.moveToNext()) {
+                String annDate = c.getString(0);
+                String annBody = c.getString(1);
+                boolean annSelected = false;
+                int annID = c.getInt(3);
+                int annSequence = c.getInt(4);
+                if (c.getString(2).equals("true")){
+                    annSelected=true;
+                }
+                announcements[i]= new Announcement(annDate,annBody,annSelected,annID, annSequence);
+                i++;
+            }
+        }
+        return announcements;
+    }
+
+    public void updateSelectedinAnnouncements(int id){
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put("annSelected", "true");
+        db.update("announcements", cv, "annID='" + id + "'", null);
+    }
+
+    public void deleteFromAnnouncementsNotIn(String array){
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("DELETE FROM announcements WHERE annID NOT IN (" + array + ");");
+    }
+
 
 }
