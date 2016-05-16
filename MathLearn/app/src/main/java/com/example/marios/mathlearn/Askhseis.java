@@ -34,26 +34,64 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class Askhseis extends MainBase {
+public class Askhseis extends MainBase implements Strategy{
 
     private static final String URL = String.format("http://mlearning-projectmr.rhcloud.com/assignments.php");
     String ids;
     Assignment[] assignments;
+    private ListView listView;
+    private DataBaseHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        strategy=this;
+        listView=(ListView) findViewById(R.id.listView);
+        dbHelper = new DataBaseHelper(this);
+        populateList();
+    }
 
-        assignments=dbHelper.getAssignments();
-        StringBuilder sb= new StringBuilder();
-        for (int i=0; i < assignments.length; i++){
-            sb.append( "'"+assignments[i].assignID+"'," );
+
+    @Override
+    public void syncedDB(String s) {
+        try{
+            JSONObject topLevel = new JSONObject(s);
+            JSONArray  assignjson = (JSONArray) topLevel.get("assignments");
+            String nonexistentassignments = (String) topLevel.get("nonexistentassignments");
+            if (assignjson.length()!=0) {
+                for (int i=0; i < assignjson.length(); i++)
+                {
+                    try {
+                        JSONObject oneObject = assignjson.getJSONObject(i);
+                        // Pulling items from the array
+                        int id = oneObject.getInt("ID");
+                        String title = oneObject.getString("Title");
+                        String link = oneObject.getString("Link");
+                        int sequence = oneObject.getInt("Sequence");
+                        dbHelper.insertInAssignments(new Assignment(title, link, false, id, sequence));
+                    } catch (JSONException e) {
+                        // Oops
+                    }
+                }
+            }
+            if (!nonexistentassignments.equals("")){
+                dbHelper.deleteFromAssignments(nonexistentassignments);
+            }
+            if (assignjson.length()==0 && nonexistentassignments.equals("") ){
+                Toast.makeText(Askhseis.this, "Τίποτα νεότερο.", Toast.LENGTH_LONG).show();
+            }else{
+                populateList();
+                Toast.makeText(Askhseis.this, "Οι ασκήσεις ανανεώθηκαν!", Toast.LENGTH_LONG).show();
+            }
+        }catch(JSONException e){
+            //No connectivity?
         }
-        ids=sb.toString();
-        ids = ids.substring(0, ids.length() - 1);
-        Toast.makeText(Askhseis.this, ids, Toast.LENGTH_LONG).show();
-        adapter = new CustomAdapter(Askhseis.this);
-        adapter.setAssignmts(assignments);
+    }
+
+    @Override
+    public void populateList() {
+        assignments=dbHelper.getAssignments();
+        AssignmentsAdapter adapter = new AssignmentsAdapter();
         listView.setAdapter(adapter);
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -66,87 +104,55 @@ public class Askhseis extends MainBase {
                 startActivity(intent);
             }
         });
-
+        StringBuilder sb= new StringBuilder();
+        for (int i=0; i < assignments.length; i++){
+            sb.append( "'"+assignments[i].assignID+"'," );
+        }
+        ids=sb.toString();
+        ids = ids.substring(0, ids.length() - 1);
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.menuRefresh:
-                new GetAssignmentsTask().execute(URL,ids);
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
+    public String provideIds() {
+        return ids;
     }
 
-    private class GetAssignmentsTask extends AsyncTask<String, Void, String> {
+    @Override
+    public String provideURL() {
+        return URL;
+    }
+
+
+    private class AssignmentsAdapter extends BaseAdapter{
+
+        private LayoutInflater inflater=null;
 
         @Override
-        protected void onPreExecute() {
-            setRefreshActionButtonState(true);
+        public int getCount() {
+            return assignments.length;
         }
 
         @Override
-        protected String doInBackground(String... strings) {
-            //Toast.makeText(Askhseis.this, strings[1], Toast.LENGTH_LONG).show();
-
-            return connectToRemote(strings[0],strings[1]);
+        public Object getItem(int position) {
+            return position;
         }
 
         @Override
-        protected void onPostExecute(String temp) {
-            //Toast.makeText(Askhseis.this, temp, Toast.LENGTH_LONG).show();
-            try{
-                JSONObject topLevel = new JSONObject(temp);
-                JSONArray  assignjson = (JSONArray) topLevel.get("assignments");
-                String nonexistentassignments = (String) topLevel.get("nonexistentassignments");
-                //StringBuilder sb= new StringBuilder();
-                //String ids;
-                if (assignjson.length()!=0) {
-                for (int i=0; i < assignjson.length(); i++)
-                {
-                    try {
-                        JSONObject oneObject = assignjson.getJSONObject(i);
-                        // Pulling items from the array
-                        int id = oneObject.getInt("ID");
-                        //sb.append( "'"+id+"'," );
-                        String title = oneObject.getString("Title");
-                        String link = oneObject.getString("Link");
-                        int sequence = oneObject.getInt("Sequence");
-                        dbHelper.insertInAssignments(new Assignment(title, link, false, id, sequence));
-                    } catch (JSONException e) {
-                        // Oops
-                    }
-                }
-                }
-                if (!nonexistentassignments.equals("")){
-                    dbHelper.deleteFromAssignments(nonexistentassignments);
-                }
-                if (assignjson.length()==0 && nonexistentassignments.equals("") ){
-                    Toast.makeText(Askhseis.this, "Τίποτα νεότερο.", Toast.LENGTH_LONG).show();
-                }else{
-                    assignments = dbHelper.getAssignments();
-                    StringBuilder sb= new StringBuilder();
-                    for (int i=0; i < assignments.length; i++){
-                        sb.append( "'"+assignments[i].assignID+"'," );
-                    }
-                    ids=sb.toString();
-                    ids = ids.substring(0, ids.length() - 1);
-                    adapter.setAssignmts(assignments);
-                    listView.setAdapter(adapter);
-                    Toast.makeText(Askhseis.this, "Οι ασκήσεις ανανεώθηκαν!", Toast.LENGTH_LONG).show();
-                }
-            }catch(JSONException e){
-                //No connectivity?
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            inflater = ( LayoutInflater )Askhseis.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View rowView = inflater.inflate(R.layout.listview, null);
+            TextView tv=(TextView) rowView.findViewById(R.id.textView1);
+            tv.setText(assignments[position].assignTitle);
+            if (assignments[position].assignSelected){
+                rowView.setBackgroundColor(1426063360);
             }
-            setRefreshActionButtonState(false);
+            return rowView;
         }
-    }
-
-
-    public void goBack(View view){
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
     }
 
 }

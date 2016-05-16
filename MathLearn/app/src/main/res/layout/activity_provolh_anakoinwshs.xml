@@ -11,10 +11,9 @@
     tools:context="com.example.marios.mathlearn.ProvolhAnakoinwshs">
 
     <TextView
-        android:lines="8"
         android:scrollbars="vertical"
         android:fadeScrollbars="false"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text=""
         android:id="@+id/anakoinwsh"
@@ -27,16 +26,5 @@
         android:paddingBottom="30dp"
         android:layout_marginTop="22dp" />
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="ΕΠΙΣΤΡΟΦΗ"
-        android:background="@drawable/rouned_corner_shadow"
-        android:paddingRight="15dp"
-        android:paddingLeft="15dp"
-        android:id="@+id/buttonback"
-        android:layout_below="@+id/anakoinwsh"
-        android:layout_marginTop="63dp"
-        android:layout_centerHorizontal="true"
-        android:onClick="goToAnakoinwseis" />
+
 </RelativeLayout>

@@ -35,11 +35,6 @@
             android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme" />
         <activity
-            android:name=".VideoViewActivity"
-            android:label="@string/title_activity_video_view"
-            android:screenOrientation="landscape"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
             android:name=".ProvolhAnakoinwshs"
             android:label="@string/title_activity_provolh_dialekshs"
             android:parentActivityName=".Anakoinwseis"

@@ -1,16 +1,20 @@
 package com.example.marios.mathlearn;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,21 +33,64 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class Anakoinwseis extends MainBase {
+public class Anakoinwseis extends MainBase implements Strategy{
 
     private static final String URL = String.format("http://mlearning-projectmr.rhcloud.com/announcements.php");
-    Announcement[] announcements;
-    String ids;
+    private Announcement[] announcements;
+    private String ids;
+    private ListView listView;
+    private DataBaseHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //url = String.format("http://mlearning-projectmr.rhcloud.com/announcements.php");
+        strategy=this;
+        listView=(ListView) findViewById(R.id.listView);
+        dbHelper = new DataBaseHelper(this);
+        populateList();
+    }
 
+    @Override
+    public void syncedDB(String s) {
+        try {
+            JSONObject topLevel = new JSONObject(s);
+            JSONArray annjson = (JSONArray) topLevel.get("announcements");
+            String nonexistentannouncements = (String) topLevel.get("nonexistentannouncements");
+            if (annjson.length() != 0) {
+                for (int i = 0; i < annjson.length(); i++) {
+                    try {
+                        JSONObject oneObject = annjson.getJSONObject(i);
+                        // Pulling items from the array
+                        int id = oneObject.getInt("ID");
+                        String date = oneObject.getString("Date");
+                        String body = oneObject.getString("Body");
+                        int sequence = oneObject.getInt("Sequence");
+                        dbHelper.insertInAnnouncements(new Announcement(date, body, false, id, sequence));
+                    } catch (JSONException e) {
+                        // Oops
+                    }
+                }
+            }
+            if (!nonexistentannouncements.equals("")) {
+                dbHelper.deleteFromAnnouncements(nonexistentannouncements);
+            }
+            if (annjson.length() == 0 && nonexistentannouncements.equals("")) {
+                Toast.makeText(Anakoinwseis.this, "Τίποτα νεότερο.", Toast.LENGTH_LONG).show();
+            } else {
+                populateList();
+                Toast.makeText(Anakoinwseis.this, "Οι ανακοινώσεις ανανεώθηκαν!", Toast.LENGTH_LONG).show();
+            }
+        } catch (JSONException e) {
+            //No connectivity?
+        }
+    }
+
+    @Override
+    public void populateList() {
         announcements = dbHelper.getAnnouncements();
-        adapter = new CustomAdapter(Anakoinwseis.this);
-        adapter.setAnnouncements(announcements);
+        AnnouncementsAdapter adapter = new AnnouncementsAdapter();
         listView.setAdapter(adapter);
-
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -63,117 +110,47 @@ public class Anakoinwseis extends MainBase {
         }
         ids=sb.toString();
         ids = ids.substring(0, ids.length() - 1);
-        Toast.makeText(Anakoinwseis.this, ids, Toast.LENGTH_LONG).show();
-
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.menuRefresh:
-                new GetAnnouncementsTask().execute(URL,ids);
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
+    public String provideIds() {
+        return ids;
     }
 
-    private class GetAnnouncementsTask extends AsyncTask<String, Void, String> {
+    @Override
+    public String provideURL() {
+        return URL;
+    }
 
-        /*private ListView listView;
-        private String ids;
+    private class AnnouncementsAdapter extends BaseAdapter{
 
-        public GetAnnouncementsTask(ListView listView, String c) {
-            this.listView = listView;
-            this.ids=c;
-        }*/
+        private LayoutInflater inflater=null;
 
         @Override
-        protected void onPreExecute() {
-            setRefreshActionButtonState(true);
+        public int getCount() {
+            return announcements.length;
         }
 
         @Override
-        protected String doInBackground(String... strings) {
-            return connectToRemote(strings[0],strings[1]);
-            //Toast.makeText(Anakoinwseis.this, this.ids, Toast.LENGTH_LONG).show();
-            /*String announcements = "UNDEFINED";
-            try {
-                URL url = new URL(strings[0]);
-                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("POST");
-                urlConnection.setDoInput(true);
-                urlConnection.setDoOutput(true);
-                Uri.Builder build = new Uri.Builder().appendQueryParameter("ids", this.ids);
-                String query = build.build().getEncodedQuery();
-                OutputStream os = urlConnection.getOutputStream();
-                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
-                writer.write(query);
-                writer.flush();
-                writer.close();
-                os.close();
-                urlConnection.connect();
-                InputStream stream = new BufferedInputStream(urlConnection.getInputStream());
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(stream));
-                StringBuilder builder = new StringBuilder();
-
-                String inputString;
-                while ((inputString = bufferedReader.readLine()) != null) {
-                    builder.append(inputString);
-                }
-                announcements = builder.toString();
-
-                urlConnection.disconnect();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return announcements;*/
+        public Object getItem(int position) {
+            return position;
         }
 
         @Override
-        protected void onPostExecute(String temp) {
-            //Toast.makeText(Anakoinwseis.this, temp, Toast.LENGTH_LONG).show();
-            try {
-                JSONObject topLevel = new JSONObject(temp);
-                JSONArray annjson = (JSONArray) topLevel.get("announcements");
-                String nonexistentannouncements = (String) topLevel.get("nonexistentannouncements");
-                if (annjson.length()!=0) {
-                    for (int i = 0; i < annjson.length(); i++) {
-                        try {
-                            JSONObject oneObject = annjson.getJSONObject(i);
-                            // Pulling items from the array
-                            int id = oneObject.getInt("ID");
-                            String date = oneObject.getString("Date");
-                            String body = oneObject.getString("Body");
-                            int sequence = oneObject.getInt("Sequence");
-                            dbHelper.insertInAnnouncements(new Announcement(date, body, false, id, sequence));
-                        } catch (JSONException e) {
-                            // Oops
-                        }
-                    }
-                }
-                if (!nonexistentannouncements.equals("")){
-                    dbHelper.deleteFromAnnouncements(nonexistentannouncements);
-                }
-                if (annjson.length()==0 && nonexistentannouncements.equals("") ){
-                    Toast.makeText(Anakoinwseis.this, "Τίποτα νεότερο.", Toast.LENGTH_LONG).show();
-                }else{
-                    announcements = dbHelper.getAnnouncements();
-                    StringBuilder sb= new StringBuilder();
-                    for (int i=0; i < announcements.length; i++){
-                        sb.append( "'"+announcements[i].annID+"'," );
-                    }
-                    ids=sb.toString();
-                    ids = ids.substring(0, ids.length() - 1);
-                    //adapter = new CustomAdapter(Anakoinwseis.this);
-                    adapter.setAnnouncements(announcements);
-                    listView.setAdapter(adapter);
-                    Toast.makeText(Anakoinwseis.this, "Οι ανακοινώσεις ανανεώθηκαν!", Toast.LENGTH_LONG).show();
-                }
-            } catch (JSONException e) {
-                //No connectivity?
-            }
-            setRefreshActionButtonState(false);
+        public long getItemId(int position) {
+            return position;
+        }
 
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            inflater = ( LayoutInflater )Anakoinwseis.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View rowView = inflater.inflate(R.layout.listview, null);
+            TextView tv=(TextView) rowView.findViewById(R.id.textView1);
+            tv.setText(announcements[position].annDate);
+            if (announcements[position].annSelected){
+                rowView.setBackgroundColor(1426063360);
+            }
+            return rowView;
         }
     }
 

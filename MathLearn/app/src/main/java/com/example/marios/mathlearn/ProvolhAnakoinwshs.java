@@ -20,8 +20,4 @@ public class ProvolhAnakoinwshs extends AppCompatActivity {
         tv1.setText(bundle.getString("str2"));
     }
 
-    public void goToAnakoinwseis(View view){
-        Intent intent = new Intent(this, Anakoinwseis.class);
-        startActivity(intent);
-    }
 }
