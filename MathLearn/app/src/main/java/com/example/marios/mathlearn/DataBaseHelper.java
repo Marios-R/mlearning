@@ -40,7 +40,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         Cursor c=db.rawQuery("SELECT * FROM videos ORDER BY vSequence DESC", null);
         if (c.getCount()==0){
             videos = new Video[1];
-            videos[0]= new Video("ΔΕΝ ΥΠΑΡΧΕΙ ΔΙΑΛΕΞΗ. ΔΟΚΙΜΑΣΤΕ ΝΑ ΑΝΑΝΕΩΣΕΤΕ ΤΗ ΛΙΣΤΑ.", "", false, false,1,0);
+            videos[0]= new Video("Δεν υπάρχει διάλεξη...\nΔοκιμάστε να ανανεώσετε τη λίστα.", "", false, false,1,0);
         }
         else {
             videos= new Video[c.getCount()];
@@ -139,7 +139,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         Cursor c=db.rawQuery("SELECT * FROM assignments ORDER BY assignSequence DESC", null);
         if (c.getCount()==0){
             assignments = new Assignment[1];
-            assignments[0]= new Assignment("ΔΕΝ ΥΠΑΡΧΕΙ ΦΥΛΛΑΔΙΟ ΑΣΚΗΣΕΩΝ. ΔΟΚΙΜΑΣΤΕ ΝΑ ΑΝΑΝΕΩΣΕΤΕ ΤΗ ΛΙΣΤΑ.", "", false,0,1);
+            assignments[0]= new Assignment("Δεν υπάρχει φυλλάδιο ασκήσεων...\nΔοκιμάστε να ανανεώσετε τη λίστα.", "", false,0,1);
         }
         else {
             assignments= new Assignment[c.getCount()];
@@ -214,7 +214,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         Cursor c=db.rawQuery("SELECT * FROM announcements ORDER BY annSequence DESC", null);
         if (c.getCount()==0){
             announcements = new Announcement[1];
-            announcements[0]= new Announcement("ΔΕΝ ΥΠΑΡΧΕΙ ΑΝΑΚΟΙΝΩΣΗ. ΔΟΚΙΜΑΣΤΕ ΝΑ ΑΝΑΝΕΩΣΕΤΕ ΤΗ ΛΙΣΤΑ.", "", false,0,1);
+            announcements[0]= new Announcement("Δεν υπάρχει ανακοίνωση...\nΔοκιμάστε να ανανεώσετε τη λίστα.", "", false,0,1);
         }
         else {
             announcements= new Announcement[c.getCount()];

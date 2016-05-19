@@ -7,7 +7,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.example.marios.m_learningmath.Dialekseis"
+    tools:context="com.example.marios.mathlearn.Anakoinwseis"
     android:background="@drawable/math">
     <ListView
         android:fadeScrollbars="false"
@@ -19,27 +19,3 @@
         android:layout_centerHorizontal="true"
         android:background ="#88FFFFFF" />
 </RelativeLayout>
-<!--
-    <RelativeLayout
-        android:layout_below="@+id/listcontainer"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_heightPercent="15%"
-        app:layout_widthPercent="100%">
-    <Button
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:text="@string/epistrofh"
-        android:background="@drawable/rouned_corner_shadow"
-        android:onClick="goBack"
-        android:id="@+id/buttonb"
-        android:paddingRight="15dp"
-        android:paddingLeft="15dp"
-        android:layout_centerInParent="true"
-        android:layout_marginBottom="5dp"
-        app:layout_heightPercent="15%"
-        app:layout_widthPercent="100%"/>
-    </RelativeLayout>
-
-</android.support.percent.PercentRelativeLayout>-->

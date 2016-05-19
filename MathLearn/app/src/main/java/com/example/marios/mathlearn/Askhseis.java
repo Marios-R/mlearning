@@ -12,6 +12,8 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,76 +36,110 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class Askhseis extends MainBase implements Strategy{
+public class Askhseis extends AppCompatActivity{
 
+    private Menu optionsMenu;
+    private MenuItem refreshItem;
     private static final String URL = String.format("http://mlearning-projectmr.rhcloud.com/assignments.php");
-    String ids;
-    Assignment[] assignments;
+    private String ids;
+    private Assignment[] assignments;
     private ListView listView;
+    private Strategy strategy;
     private DataBaseHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        //strategy=new SyncAssign();
         super.onCreate(savedInstanceState);
-        strategy=this;
+        setContentView(R.layout.activity_anakoinwseis);
+        strategy=new SyncAssign();
+        dbHelper=new DataBaseHelper(this);
+        //url=String.format("http://mlearning-projectmr.rhcloud.com/assignments.php");
         listView=(ListView) findViewById(R.id.listView);
-        dbHelper = new DataBaseHelper(this);
         populateList();
     }
 
-
     @Override
-    public void syncedDB(String s) {
-        try{
-            JSONObject topLevel = new JSONObject(s);
-            JSONArray  assignjson = (JSONArray) topLevel.get("assignments");
-            String nonexistentassignments = (String) topLevel.get("nonexistentassignments");
-            if (assignjson.length()!=0) {
-                for (int i=0; i < assignjson.length(); i++)
-                {
-                    try {
-                        JSONObject oneObject = assignjson.getJSONObject(i);
-                        // Pulling items from the array
-                        int id = oneObject.getInt("ID");
-                        String title = oneObject.getString("Title");
-                        String link = oneObject.getString("Link");
-                        int sequence = oneObject.getInt("Sequence");
-                        dbHelper.insertInAssignments(new Assignment(title, link, false, id, sequence));
-                    } catch (JSONException e) {
-                        // Oops
-                    }
-                }
-            }
-            if (!nonexistentassignments.equals("")){
-                dbHelper.deleteFromAssignments(nonexistentassignments);
-            }
-            if (assignjson.length()==0 && nonexistentassignments.equals("") ){
-                Toast.makeText(Askhseis.this, "Τίποτα νεότερο.", Toast.LENGTH_LONG).show();
-            }else{
-                populateList();
-                Toast.makeText(Askhseis.this, "Οι ασκήσεις ανανεώθηκαν!", Toast.LENGTH_LONG).show();
-            }
-        }catch(JSONException e){
-            //No connectivity?
-        }
+    public boolean onCreateOptionsMenu(Menu menu) {
+        this.optionsMenu = menu;
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.refresh_menu, menu);
+        refreshItem = optionsMenu.findItem(R.id.menuRefresh);
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
-    public void populateList() {
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menuRefresh:
+                setRefreshActionButtonState(true);
+                new SyncWithRemote(strategy).execute(URL,ids);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void setRefreshActionButtonState(final boolean refreshing) {
+        if (optionsMenu != null) {
+            if (refreshItem != null) {
+                if (refreshing) {
+                    refreshItem.setActionView(R.layout.actionbar_indeterminate_progress);
+                } else {
+                    refreshItem.setActionView(null);
+                }
+            }
+        }
+    }
+
+    private class SyncAssign implements Strategy{
+    @Override
+    public void syncedDB(String s) {
+        if (s.equals("UNDEFINED")) {
+            Toast.makeText(Askhseis.this, "Αδυναμία σύνδεσης...", Toast.LENGTH_LONG).show();
+        } else {
+            try {
+                JSONObject topLevel = new JSONObject(s);
+                JSONArray assignjson = (JSONArray) topLevel.get("assignments");
+                String nonexistentassignments = (String) topLevel.get("nonexistentassignments");
+                if (assignjson.length() != 0) {
+                    for (int i = 0; i < assignjson.length(); i++) {
+                        try {
+                            JSONObject oneObject = assignjson.getJSONObject(i);
+                            // Pulling items from the array
+                            int id = oneObject.getInt("ID");
+                            String title = oneObject.getString("Title");
+                            String link = oneObject.getString("Link");
+                            int sequence = oneObject.getInt("Sequence");
+                            dbHelper.insertInAssignments(new Assignment(title, link, false, id, sequence));
+                        } catch (JSONException e) {
+                            // Oops
+                        }
+                    }
+                }
+                if (!nonexistentassignments.equals("")) {
+                    dbHelper.deleteFromAssignments(nonexistentassignments);
+                }
+                if (assignjson.length() == 0 && nonexistentassignments.equals("")) {
+                    Toast.makeText(Askhseis.this, "Τίποτα νεότερο.", Toast.LENGTH_LONG).show();
+                } else {
+                    populateList();
+                    Toast.makeText(Askhseis.this, "Οι ασκήσεις ανανεώθηκαν!", Toast.LENGTH_LONG).show();
+                }
+            } catch (JSONException e) {
+                //No connectivity?
+            }
+        }
+        setRefreshActionButtonState(false);
+    }
+    }
+
+    //@Override
+    private void populateList() {
         assignments=dbHelper.getAssignments();
         AssignmentsAdapter adapter = new AssignmentsAdapter();
         listView.setAdapter(adapter);
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                dbHelper.updateSelectedinAssignments(assignments[position].assignID);
-                String url = assignments[position].assignLink;
-                Uri uri = Uri.parse(url);
-                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-                startActivity(intent);
-            }
-        });
+        listView.setOnItemClickListener(new AssignSelected());
         StringBuilder sb= new StringBuilder();
         for (int i=0; i < assignments.length; i++){
             sb.append( "'"+assignments[i].assignID+"'," );
@@ -112,15 +148,15 @@ public class Askhseis extends MainBase implements Strategy{
         ids = ids.substring(0, ids.length() - 1);
     }
 
-    @Override
-    public String provideIds() {
-        return ids;
-    }
+    //@Override
+   // public String provideIds() {
+     //   return ids;
+   // }
 
-    @Override
-    public String provideURL() {
-        return URL;
-    }
+   // @Override
+    //public String provideURL() {
+   //     return URL;
+   // }
 
 
     private class AssignmentsAdapter extends BaseAdapter{
@@ -152,6 +188,20 @@ public class Askhseis extends MainBase implements Strategy{
                 rowView.setBackgroundColor(1426063360);
             }
             return rowView;
+        }
+    }
+
+    private class AssignSelected implements AdapterView.OnItemClickListener{
+
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            if(!assignments[position].assignSelected){
+                dbHelper.updateSelectedinAssignments(assignments[position].assignID);
+            }
+            String url = assignments[position].assignLink;
+            Uri uri = Uri.parse(url);
+            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+            startActivity(intent);
         }
     }
 

@@ -17,7 +17,7 @@ public class ProvolhAnakoinwshs extends AppCompatActivity {
         Bundle bundle = this.getIntent().getExtras();
         setTitle(bundle.getString("title"));
         tv1.setMovementMethod(new ScrollingMovementMethod());
-        tv1.setText(bundle.getString("str2"));
+        tv1.setText(bundle.getString("body"));
     }
 
 }
