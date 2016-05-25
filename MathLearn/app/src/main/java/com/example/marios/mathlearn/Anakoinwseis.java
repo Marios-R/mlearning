@@ -1,11 +1,7 @@
 package com.example.marios.mathlearn;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -15,25 +11,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
 
 public class Anakoinwseis extends AppCompatActivity{
 
@@ -43,20 +28,17 @@ public class Anakoinwseis extends AppCompatActivity{
     private Announcement[] announcements;
     private String ids;
     private ListView listView;
-    private Strategy strategy;
     private DataBaseHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        //strategy=new SyncAnnoun();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_anakoinwseis);
-        strategy=new SyncAnnoun();
         dbHelper=new DataBaseHelper(this);
-        //url = String.format("http://mlearning-projectmr.rhcloud.com/announcements.php");
-        //url=String.format("http://mlearning-projectmr.rhcloud.com/announcements.php");
         listView=(ListView) findViewById(R.id.listView);
         populateList();
+        setRefreshActionButtonState(true);
+        new SyncWithRemote(new SyncAnnoun()).execute(URL, ids);
     }
 
     @Override
@@ -73,7 +55,7 @@ public class Anakoinwseis extends AppCompatActivity{
         switch (item.getItemId()) {
             case R.id.menuRefresh:
                 setRefreshActionButtonState(true);
-                new SyncWithRemote(strategy).execute(URL,ids);
+                new SyncWithRemote(new ManualSyncAnnoun()).execute(URL,ids);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -95,9 +77,6 @@ public class Anakoinwseis extends AppCompatActivity{
 
     @Override
     public void syncedDB(String s) {
-        if (s.equals("UNDEFINED")) {
-            Toast.makeText(Anakoinwseis.this, "Αδυναμία σύνδεσης...", Toast.LENGTH_LONG).show();
-        } else {
             try {
                 JSONObject topLevel = new JSONObject(s);
                 JSONArray annjson = (JSONArray) topLevel.get("announcements");
@@ -120,9 +99,7 @@ public class Anakoinwseis extends AppCompatActivity{
                 if (!nonexistentannouncements.equals("")) {
                     dbHelper.deleteFromAnnouncements(nonexistentannouncements);
                 }
-                if (annjson.length() == 0 && nonexistentannouncements.equals("")) {
-                    Toast.makeText(Anakoinwseis.this, "Τίποτα νεότερο.", Toast.LENGTH_LONG).show();
-                } else {
+                if (annjson.length() != 0 || !nonexistentannouncements.equals("")) {
                     populateList();
                     Toast.makeText(Anakoinwseis.this, "Οι ανακοινώσεις ανανεώθηκαν!", Toast.LENGTH_LONG).show();
                 }
@@ -130,11 +107,52 @@ public class Anakoinwseis extends AppCompatActivity{
                 //No connectivity?
             }
         }
-        setRefreshActionButtonState(false);
-    }
     }
 
-    //@Override
+    private class ManualSyncAnnoun implements Strategy{
+
+        @Override
+        public void syncedDB(String s) {
+            if (s.equals("UNDEFINED")) {
+                Toast.makeText(Anakoinwseis.this, "Αδυναμία σύνδεσης...", Toast.LENGTH_LONG).show();
+            } else {
+                try {
+                    JSONObject topLevel = new JSONObject(s);
+                    JSONArray annjson = (JSONArray) topLevel.get("announcements");
+                    String nonexistentannouncements = (String) topLevel.get("nonexistentannouncements");
+                    if (annjson.length() != 0) {
+                        for (int i = 0; i < annjson.length(); i++) {
+                            try {
+                                JSONObject oneObject = annjson.getJSONObject(i);
+                                // Pulling items from the array
+                                int id = oneObject.getInt("ID");
+                                String date = oneObject.getString("Date");
+                                String body = oneObject.getString("Body");
+                                int sequence = oneObject.getInt("Sequence");
+                                dbHelper.insertInAnnouncements(new Announcement(date, body, false, id, sequence));
+                            } catch (JSONException e) {
+                                // Oops
+                            }
+                        }
+                    }
+                    if (!nonexistentannouncements.equals("")) {
+                        dbHelper.deleteFromAnnouncements(nonexistentannouncements);
+                    }
+                    if (annjson.length() == 0 && nonexistentannouncements.equals("")) {
+                        Toast.makeText(Anakoinwseis.this, "Τίποτα νεότερο.", Toast.LENGTH_LONG).show();
+                    } else {
+                        populateList();
+                        Toast.makeText(Anakoinwseis.this, "Οι ανακοινώσεις ανανεώθηκαν!", Toast.LENGTH_LONG).show();
+                    }
+                } catch (JSONException e) {
+                    //No connectivity?
+                }
+            }
+            setRefreshActionButtonState(false);
+        }
+    }
+
+
     private void populateList() {
         announcements = dbHelper.getAnnouncements();
         AnnouncementsAdapter adapter = new AnnouncementsAdapter();

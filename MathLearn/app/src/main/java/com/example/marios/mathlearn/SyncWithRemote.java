@@ -57,7 +57,6 @@ class SyncWithRemote extends AsyncTask<String, Void, String> {
 
             urlConnection.disconnect();
         } catch (Exception e) {
-            //Toast.makeText(MainBase.this, "Αδυναμία σύνδεσης...", Toast.LENGTH_LONG).show();
             //e.printStackTrace();
         }
         return response;
@@ -66,6 +65,5 @@ class SyncWithRemote extends AsyncTask<String, Void, String> {
     @Override
     protected void onPostExecute(String temp) {
         strategy.syncedDB(temp);
-        //setRefreshActionButtonState(false);
     }
 }

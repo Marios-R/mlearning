@@ -28,25 +28,17 @@ public class Dialekseis extends AppCompatActivity {
     private Video[] videos;
     private int[] idarray;
     private ListView listView;
-
     private String ids;
-    private Strategy strategy;
     private DataBaseHelper dbHelper;
-    //private String
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        //strategy=new SyncVideos();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dialekseis);
-        //url = String.format("http://mlearning-projectmr.rhcloud.com/videos.php");
-        //strategy=this;
-        //url=String.format("http://mlearning-projectmr.rhcloud.com/videos.php");
-        strategy=new SyncVideos();
         dbHelper=new DataBaseHelper(this);
         listView=(ListView) findViewById(R.id.listView);
-        //syncWithRemote=new SyncWithRemote(new SyncVideos());
         populateList();
+        new SyncWithRemote(new SyncVideos()).execute(URL, ids);
     }
 
     @Override
@@ -63,7 +55,7 @@ public class Dialekseis extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.menuRefresh:
                 setRefreshActionButtonState(true);
-                new SyncWithRemote(strategy).execute(URL,ids);
+                new SyncWithRemote(new ManualSyncVideos()).execute(URL,ids);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -84,9 +76,6 @@ public class Dialekseis extends AppCompatActivity {
     private class SyncVideos implements Strategy{
     @Override
     public void syncedDB(String s) {
-        if (s.equals("UNDEFINED")) {
-            Toast.makeText(Dialekseis.this, "Αδυναμία σύνδεσης...", Toast.LENGTH_LONG).show();
-        } else {
             try {
                 JSONObject topLevel = new JSONObject(s);
                 JSONArray vidjson = (JSONArray) topLevel.get("videos");
@@ -109,9 +98,7 @@ public class Dialekseis extends AppCompatActivity {
                 if (!nonexistentvideos.equals("")) {
                     dbHelper.deleteFromVidsIn(nonexistentvideos);
                 }
-                if (vidjson.length() == 0 && nonexistentvideos.equals("")) {
-                    Toast.makeText(Dialekseis.this, "Τίποτα νεότερο.", Toast.LENGTH_LONG).show();
-                } else {
+                if (vidjson.length() != 0 || !nonexistentvideos.equals("")) {
                     populateList();
                     Toast.makeText(Dialekseis.this, "Οι διαλέξεις ανανεώθηκαν!", Toast.LENGTH_LONG).show();
                 }
@@ -119,11 +106,8 @@ public class Dialekseis extends AppCompatActivity {
                 //No connectivity?
             }
         }
-        setRefreshActionButtonState(false);
-    }
     }
 
-    //@Override
     private void populateList() {
         videos = dbHelper.getVideos();
         VideosAdapter adapter=new VideosAdapter();
@@ -186,11 +170,51 @@ public class Dialekseis extends AppCompatActivity {
                 dbHelper.updateSelectedinVids(videos[position].videoID);
             }
             Intent intent = new Intent(Dialekseis.this, ProvolhDialekshs.class);
-            //intent.putExtra("video", videos[position].videoID);
             intent.putExtra("position",position);
-            intent.putExtra("idarray",idarray);
-            //intent.putExtra("title",videos[position].videoTitle);
+            intent.putExtra("idarray", idarray);
             startActivity(intent);
+        }
+    }
+
+    private class ManualSyncVideos implements Strategy{
+        @Override
+        public void syncedDB(String s) {
+            if (s.equals("UNDEFINED")) {
+                Toast.makeText(Dialekseis.this, "Αδυναμία σύνδεσης...", Toast.LENGTH_LONG).show();
+            } else {
+                try {
+                    JSONObject topLevel = new JSONObject(s);
+                    JSONArray vidjson = (JSONArray) topLevel.get("videos");
+                    String nonexistentvideos = (String) topLevel.get("nonexistentvideos");
+                    if (vidjson.length() != 0) {
+                        for (int i = 0; i < vidjson.length(); i++) {
+                            try {
+                                JSONObject oneObject = vidjson.getJSONObject(i);
+                                // Pulling items from the array
+                                int id = oneObject.getInt("ID");
+                                String code = oneObject.getString("Code");
+                                String title = oneObject.getString("Title");
+                                int sequence = oneObject.getInt("Sequence");
+                                dbHelper.insertInVids(new Video(title, code, false, false, sequence, id));
+                            } catch (JSONException e) {
+                                // Oops
+                            }
+                        }
+                    }
+                    if (!nonexistentvideos.equals("")) {
+                        dbHelper.deleteFromVidsIn(nonexistentvideos);
+                    }
+                    if (vidjson.length() == 0 && nonexistentvideos.equals("")) {
+                        Toast.makeText(Dialekseis.this, "Τίποτα νεότερο.", Toast.LENGTH_LONG).show();
+                    } else {
+                        populateList();
+                        Toast.makeText(Dialekseis.this, "Οι διαλέξεις ανανεώθηκαν!", Toast.LENGTH_LONG).show();
+                    }
+                } catch (JSONException e) {
+                    //No connectivity?
+                }
+            }
+            setRefreshActionButtonState(false);
         }
     }
 

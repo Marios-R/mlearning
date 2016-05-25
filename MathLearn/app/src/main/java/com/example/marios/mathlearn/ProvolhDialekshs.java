@@ -22,28 +22,21 @@ public class ProvolhDialekshs extends AppCompatActivity {
     private DataBaseHelper dbHelper;
     private ProgressDialog progDialog = null;
     private int id;
-    //private Dialog dialog;
     private int position;
     private Video currentvideo;
     private int[] videoids;
-    //MediaPlayer.OnCompletionListener finishstrategy;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_provolh_dialekshs2);
+
         VideoView vidView = (VideoView)findViewById(R.id.myVideo);
         Bundle bundle = this.getIntent().getExtras();
-
         position=bundle.getInt("position");
-        ///if (position-1>=0)
-        //    finishstrategy = new NextVideo();
-        //else
-           // finishstrategy = new NoNextVideo();
         videoids=bundle.getIntArray("idarray");
         id=videoids[position];
         dbHelper = new DataBaseHelper(ProvolhDialekshs.this);
-        //dbHelper.updateSelectedinVids(id);
         currentvideo = dbHelper.getVideo(id);
         setTitle(currentvideo.videoTitle);
         String vidAddress = currentvideo.videoLink;
@@ -55,8 +48,6 @@ public class ProvolhDialekshs extends AppCompatActivity {
         vidView.start();
 
         progDialog = ProgressDialog.show(this, "ΠΑΡΑΚΑΛΩ ΠΕΡΙΜΕΝΕΤΕ", "ΦΟΡΤΩΝΕΙ...", true);
-        //progDialog.setCancelable(false);
-        //progDialog.setCanceledOnTouchOutside(false);
 
         vidView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
