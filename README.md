@@ -6,4 +6,4 @@ This is an mlearning project for android.
 
 The local database is updating videos, assignments and announcements by comunicating with the server and getting in response new resources or resources that should be deleted localy. This is done by using AsyncTask, JSONObject and the strategy pattern from the side of the application:
 
-![alt text] (https://lh3.googleusercontent.com/1X5vziJQq1ZJ-ztAD2N7Y8BNUxByVZS-cYc20a_pRqP7RCBf4RvrZO68FySGeIopcEds4aFU69ugMWblKZe3vr1dCPjisblWTW9O-aTZSmisHwIuHgBdfPfqJjVyP4f9wJdKSChAHFDOBlGmf4VjSAUcIDpTpY5klYsEsUAxJ0u0EDdOh3ltR39JfZif4QE5yPfXppmwBkXNV4ovstj-nGdgBRjlxK6lPnUZSkcwvpZtm2Pl-jrv0mHhxYoRGonOoDHJwQoAIlNBB3ndQQ7saGyD4ndUDSQ438RB7IH5mzF0Uh_ZyVBFVV3_sl7AFLxK7nZiuFjbNB1wW79mMEyHPzPtCowKhJIHrN2Ztto7lYIoE33ebIpzdvBmytWJpfmrvs7B5rJecj2eZmfJqHNrOZOGB8EH5vCU-TgjDMGq5StbmijBzf6mPHEd85AIa88n-jgTgpg-0wR1bHBlhb0PoCpRJ1yvBHGskH6oQC-p_bDSS1KooCezisfZM6B7XDG_dJGprZKyUctvNAU1zsH4lu6N0If-j87V0_vn3d5tcxCOpu-GM2eHi5IUc9x_8WqfKKiRS7avx-NYng_WTcHtnJdUJVUjzw=w679-h709-no)
+![alt text] (sync.png)
