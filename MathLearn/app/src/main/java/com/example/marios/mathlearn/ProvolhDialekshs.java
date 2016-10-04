@@ -57,11 +57,40 @@ public class ProvolhDialekshs extends AppCompatActivity {
             }
         });
 
+        vidView.setOnErrorListener(new PlaybackError());
+
         if (position-1>=0)
             vidView.setOnCompletionListener(new NextVideo(videoids[position-1]));
         else
             vidView.setOnCompletionListener(new NoNextVideo());
 
+    }
+
+    public class PlaybackError implements MediaPlayer.OnErrorListener
+    {
+        private Dialog dialog;
+
+        @Override
+        public boolean onError(MediaPlayer mp, int what, int extra) {
+            if (!currentvideo.videoViewed){
+                dbHelper.updateViewedinVids(id);
+            }
+            dialog = new Dialog(ProvolhDialekshs.this);
+            dialog.setContentView(R.layout.playerror);
+            TextView tv=(TextView)dialog.findViewById(R.id.textView);
+            Button yes=(Button)dialog.findViewById(R.id.buttonyes);
+            dialog.setTitle("ΣΦΑΛΜΑ ΑΝΑΠΑΡΑΓΩΓΗΣ...");
+            tv.setText("Λυπούμαστε. Η διάλεξη με τίτλο '" + currentvideo.videoTitle + "' δεν μπορεί να αναπαραχθεί τώρα. Θέλετε να γυρήσετε πίσω στις διαλέξεις?");
+            yes.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    dialog.dismiss();
+                    Intent intent = new Intent(ProvolhDialekshs.this, Dialekseis.class);
+                    startActivity(intent);
+                }
+            });
+            dialog.show();
+            return true;
+        }
     }
 
     public class NextVideo implements MediaPlayer.OnCompletionListener{
