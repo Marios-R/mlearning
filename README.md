@@ -8,4 +8,4 @@ The application synchronizes with the server automatically but the user can also
 
 The local database is updating videos, assignments and announcements by comunicating with the server and getting in response new resources or resources that should be deleted localy. This is done by using AsyncTask, JSONObject and the strategy pattern from the side of the application:
 
-![alt text] (https://raw.githubusercontent.com/Marios-R/mlearning/master/sync.png)
+![Sync](sync.png)
